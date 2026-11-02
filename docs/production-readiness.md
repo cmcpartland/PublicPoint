@@ -175,13 +175,13 @@ No crash-reporting SDK. The app keeps its promise to send nothing besides the ti
 - [ ] Store listings in German and English: screenshots (phone; Play also accepts the Fold), short and long description, category, Play feature graphic (1024×500).
 - [ ] Play Console: data safety form (no data collected or shared; location used on the device only), content rating questionnaire, target audience, privacy policy URL.
 - [ ] App Store Connect: privacy labels ("Data Not Collected"), age rating, privacy policy URL, support URL.
-- [ ] README: drop "early prototype" and list all categories (recycling centres and bookcases are missing) and the current counts.
+- [x] README: drop "early prototype" and list all categories (recycling centres and bookcases are missing) and the current counts.
 - [ ] Back up the upload keystore (`~/keystores/munichspot-upload.jks`) and its passwords from `local.properties` somewhere outside this Mac.
 
 ## Open points (2026-11-02)
 Everything still unchecked above, in one place. Steps 1–4, 6 and 7 and the test-matrix fixes are done; App CI passes on GitHub.
 
-- **Blockers for a first release:** the app icon and store listings (step 9).
+- **Blockers for a first release:** the app icon and store listings (step 9). The README is updated.
 - **Needs store accounts** (iOS needs a paid Apple Developer team):
   - TestFlight archive and upload (step 4).
   - The crash-report path end to end with the `d633aab` trigger, symbolicated in Android vitals and Xcode Organizer, and the vitals alerts (steps 5 and 8).

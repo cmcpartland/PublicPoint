@@ -1,25 +1,29 @@
 # PublicPoint
 
-PublicPoint is a Kotlin Multiplatform (Compose Multiplatform) app for iOS and Android that shows Munich infrastructure from open data on a map: recycling islands (Wertstoffinseln), clothes donation containers (Altkleidercontainer), mailboxes (Briefkästen), drinking fountains (Trinkbrunnen) and public toilets (öffentliche Toiletten).
+PublicPoint is a Kotlin Multiplatform (Compose Multiplatform) app for iOS and Android that shows Munich infrastructure from open data on a map: recycling islands (Wertstoffinseln), clothes donation containers (Altkleidercontainer), recycling centres (Wertstoffhöfe), mailboxes (Briefkästen), drinking fountains (Trinkbrunnen), public toilets (öffentliche Toiletten) and public bookcases (Bücherschränke).
 
-This is an early prototype, not a finished app.
+Version 1.0 is being prepared for the App Store and Google Play; what's left is tracked in `docs/production-readiness.md`.
 
 ## Status
 
 **Features:**
-- About 1,900 real points (864 AWM recycling islands, 265 clothes containers, 747 OSM mailboxes, 115 drinking fountains, 165 public toilet locations) from `pois.geojson`, downloaded at runtime (nothing is bundled).
-- The app opens on the map with a category pill at the bottom. Tapping it expands a panel of the five categories (and "Alle"); choosing one shows only that category on the map, and the pill then shows it with a button to clear the selection.
-- Place search: the expanded panel has a "Wo?" field that finds streets, parks, squares, stations, landmarks and districts from an OSM index (`places.json`, bundled and refreshed weekly from the same site as the POIs) and moves the map there, so you can combine it with a category (e.g. toilets near the Englischer Garten).
-- The map opens framed on a 700 m radius (walking distance) around the user (if location is allowed and the fix is in Munich), otherwise around Marienplatz.
-- Pins clustered per type: green = recycling, red = clothes containers (shown offset beside their island), yellow = mailboxes, light blue = drinking fountains, purple = public toilets. Tapping a cluster zooms in.
+- About 2,250 real points (866 AWM recycling islands, 261 clothes containers, 12 recycling centres, 747 OSM mailboxes, 115 drinking fountains, 165 public toilet locations, 80 public bookcases; data of 2026-11-01) from `pois.geojson`, downloaded at runtime (nothing is bundled).
+- The app opens on the map with a pill at the bottom with two segments: the category and the place. Tapping either expands a panel with a place search field above the seven categories (and "Alle"); choosing one shows only that category on the map. Each segment has its own ✕ to clear it.
+- Place search: the "Ort suchen" field finds streets, parks, squares, stations, landmarks and districts from an OSM index (`places.json`, bundled and refreshed weekly from the same site as the POIs) and moves the map there, marked with a pin, so you can combine it with a category (e.g. toilets near the Englischer Garten).
+- The map opens framed on a 700 m radius (walking distance) around the user (if location is allowed and the fix is in Munich), otherwise around Marienplatz. If a chosen category or place has none of its pins on screen, the map zooms out to show the nearest ones.
+- Pins clustered per type: green = recycling, red = clothes containers (shown offset beside their island), teal = recycling centres, yellow = mailboxes, light blue = drinking fountains, purple = public toilets, brown = public bookcases. Tapping a cluster zooms in.
 - Tapping a pin opens a details sheet with a Navigate action. Recycling islands list accepted materials: glass by colour, Leichtverpackungen.
-- Filter button (bottom right, only while the recycling or toilet category is selected) opens a filter sheet: recycling islands by material (glass, packaging), public toilets by requirement (accessible, free, with baby changing).
+- Opening hours: toilets, recycling centres and bookcases with stated hours show whether they're open now; closed ones are drawn faded with a clock mark. Unknown hours never hide a pin.
+- Filter button (only for categories with options) opens a filter sheet: recycling islands by material (glass, packaging), recycling centres open now, public toilets by requirement (accessible, free, with baby changing, open now).
+- Recycling centres show their address and opening hours, with a link to the AWM page.
+- Mailboxes show their address and collection times.
 - Drinking fountains show their name and remark; many are shut off in winter.
-- Public toilets show address, opening hours, price, floor, accessibility, baby changing, Euro key, room types and a warning if the city lists them as defective.
-- Languages: the UI follows the device language, German on German devices and English otherwise (per-app language setting supported on Android 13+ and iOS).
+- Public toilets show address, opening hours, price, floor, accessibility, baby changing, Euro key, room types and a warning mark if the city lists them as defective or impaired.
+- Public bookcases show their description and whether they're in a phone box or indoors.
+- Languages: the UI follows the device language, German on German devices and English otherwise (per-app language setting supported on Android 13+ and iOS). German source text (toilet hours, fountain and bookcase notes) is machine-translated on English devices and labelled as such.
 - Dark mode follows the system setting; the map switches to OpenFreeMap's "fiord" style.
-- Locate button shows the user's position and centres the map on it. Location permission is asked when a map is first opened.
-- Nightly data refresh: a GitHub Action runs `tools/data/build_pois.py` and publishes the result to GitHub Pages. On launch the app shows the last downloaded file if it has one (so it works offline), then checks for a newer one (conditional request via ETag) on launch and whenever it returns to the foreground. With no cache and no network it shows "Keine Daten" with a retry button. If the data is more than 30 days old, the attribution bar shows its date.
+- Locate button shows the user's position and centres the map on it; it appears after you pan away. Location permission is asked when a map is first opened.
+- Nightly data refresh: a GitHub Action runs `tools/data/build_pois.py` and publishes the result to GitHub Pages. On launch the app shows the last downloaded file if it has one (so it works offline), then checks for a newer one (conditional request via ETag) on launch and whenever it returns to the foreground. With no cache and no network it shows "Keine Daten" with a retry button and retries with backoff; a failed map style shows its own notice and retries too. If the data is more than 30 days old, the attribution bar shows its date.
 
 **Platform status:**
 - **iOS:** all of the above has been run and checked in the iOS simulator, not on a physical device.
@@ -83,9 +87,11 @@ The app has no crash-reporting SDK. Crashes reach the stores' own consoles:
 ## Data sources and attribution
 
 - **Recycling islands:** Landeshauptstadt München, Abfallwirtschaftsbetrieb München (AWM), via opendata.muenchen.de, dataset `awm_container_opendata`. Licensed under [Datenlizenz Deutschland – Namensnennung – Version 2.0](https://www.govdata.de/dl-de/by-2-0). The source data is in EPSG:25832 and is converted to WGS84. Accepted container types (glass by colour, packaging, clothing) are included per site. Clothes containers are not a separate source: the app derives them from the islands that accept clothing.
+- **Recycling centres:** locations and addresses from Landeshauptstadt München, AWM, WFS layer `gsm_wfs:awm_wertstoffhoefe`, licensed under [Datenlizenz Deutschland – Namensnennung – Version 2.0](https://www.govdata.de/dl-de/by-2-0); names and opening hours © OpenStreetMap contributors, [ODbL 1.0](https://www.openstreetmap.org/copyright).
 - **Mailboxes:** © OpenStreetMap contributors, [ODbL 1.0](https://www.openstreetmap.org/copyright).
 - **Drinking fountains:** Landeshauptstadt München, via opendata.muenchen.de, dataset `opendata_trinkwasserbrunnen`. Licensed under [Datenlizenz Deutschland – Namensnennung – Version 2.0](https://www.govdata.de/dl-de/by-2-0). The source data is in EPSG:25832 and is converted to WGS84. Winter shut-off is not fully in the data.
 - **Public toilets:** Landeshauptstadt München, via opendata.muenchen.de, dataset `wc_finder`. Licensed under [Datenlizenz Deutschland – Namensnennung – Version 2.0](https://www.govdata.de/dl-de/by-2-0). The source data is in EPSG:25832 and is converted to WGS84. The dataset lists one entry per room; rooms within 15 m of each other are merged into one location. Only city-owned toilets are included.
+- **Public bookcases:** © OpenStreetMap contributors, [ODbL 1.0](https://www.openstreetmap.org/copyright).
 - **Place search index:** © OpenStreetMap contributors, [ODbL 1.0](https://www.openstreetmap.org/copyright), built by `tools/data/build_places.py`.
 - **Map tiles and style:** [OpenFreeMap](https://openfreemap.org). Data © OpenMapTiles and © OpenStreetMap contributors.
 
