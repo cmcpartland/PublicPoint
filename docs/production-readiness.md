@@ -55,7 +55,7 @@ Already good: the cache comes before the network, `If-None-Match` is sent only w
 | # | Sev | Finding |
 |---|-----|---------|
 | L1 | Medium | There is not a single log call in the app (`println`, `Log`, `NSLog`: none). When a tester reports "Keine Daten", there is no way to tell a timeout from a 404, a failed parse, an implausible file or a disk error. |
-| L2 | Low | MapLibre logs everything to logcat/NSLog by default (`MapLogging.logger`). That's fine for debug, but consider raising the threshold in release builds. |
+| L2 | Low | MapLibre logs everything to logcat/NSLog by default (`MapLogging.logger`). That's fine for debug, but consider raising the threshold in release builds. Done (`feature/maplibre-log-level`): release builds log Warning and above, via `quietMapLogsInRelease()` in `map/MapLogSetup.kt`. |
 
 ### Error reporting
 
@@ -195,7 +195,6 @@ Everything still unchecked above, in one place. Steps 1–4, 6 and 7 and the tes
   - Baseline profile (step 4).
   - iOS unhandled-exception hook for the throw site and message (step 5).
   - H2/H3: measure the GeoJSON build and place search on a low-end Android device.
-  - L2: lower MapLibre's log threshold in release builds.
   - A bigger cluster radius for the crowded centre (CLAUDE.md open ideas).
 
 ## Out of scope / already tracked

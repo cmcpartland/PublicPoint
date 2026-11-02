@@ -32,6 +32,7 @@ import de.publicpoint.map.CameraCarry
 import de.publicpoint.map.DataStatus
 import de.publicpoint.map.MapScreen
 import de.publicpoint.map.PoiFilters
+import de.publicpoint.map.quietMapLogsInRelease
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -39,6 +40,7 @@ private val RETRY_DELAYS_MS = listOf(5_000L, 15_000L, 60_000L)
 
 @Composable
 fun App() {
+    remember { quietMapLogsInRelease() }
     var data by remember { mutableStateOf<PoiData?>(null) }
     var loaded by remember { mutableStateOf(false) }
     var failed by remember { mutableStateOf(false) }
