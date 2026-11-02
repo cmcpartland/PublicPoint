@@ -176,7 +176,7 @@ No crash-reporting SDK. The app keeps its promise to send nothing besides the ti
 - [ ] Play Console: data safety form (no data collected or shared; location used on the device only), content rating questionnaire, target audience, privacy policy URL.
 - [ ] App Store Connect: privacy labels ("Data Not Collected"), age rating, privacy policy URL, support URL.
 - [x] README: drop "early prototype" and list all categories (recycling centres and bookcases are missing) and the current counts.
-- [ ] Back up the upload keystore (`~/keystores/munichspot-upload.jks`) and its passwords from `local.properties` somewhere outside this Mac.
+- [x] Back up the upload keystore (`~/keystores/munichspot-upload.jks`) and its passwords from `local.properties` somewhere outside this Mac. Done 2026-11-02.
 
 ## Open points (2026-11-02)
 Everything still unchecked above, in one place. Steps 1–4, 6 and 7 and the test-matrix fixes are done; App CI passes on GitHub.
