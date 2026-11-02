@@ -170,6 +170,34 @@ No crash-reporting SDK. The app keeps its promise to send nothing besides the ti
     - Physical devices.
     - The crash-report upload.
 
+### Step 9: Store assets and listings (found 2026-11-02, at `0fc0f8e`)
+- [ ] **App icon (blocker on both stores).** iOS: `AppIcon.appiconset` has only `Contents.json`, no 1024×1024 image, so App Store validation rejects the build. Android: no `mipmap` resources and no `android:icon` in the manifest, so the system default icon shows; add an adaptive icon (foreground + background, plus monochrome for themed icons). Play also needs a 512×512 listing icon.
+- [ ] Store listings in German and English: screenshots (phone; Play also accepts the Fold), short and long description, category, Play feature graphic (1024×500).
+- [ ] Play Console: data safety form (no data collected or shared; location used on the device only), content rating questionnaire, target audience, privacy policy URL.
+- [ ] App Store Connect: privacy labels ("Data Not Collected"), age rating, privacy policy URL, support URL.
+- [ ] README: drop "early prototype" and list all categories (recycling centres and bookcases are missing) and the current counts.
+- [ ] Back up the upload keystore (`~/keystores/munichspot-upload.jks`) and its passwords from `local.properties` somewhere outside this Mac.
+
+## Open points (2026-11-02)
+Everything still unchecked above, in one place. Steps 1–4, 6 and 7 and the test-matrix fixes are done; App CI passes on GitHub.
+
+- **Blockers for a first release:** the app icon and store listings (step 9).
+- **Needs store accounts** (iOS needs a paid Apple Developer team):
+  - TestFlight archive and upload (step 4).
+  - The crash-report path end to end with the `d633aab` trigger, symbolicated in Android vitals and Xcode Organizer, and the vitals alerts (steps 5 and 8).
+- **Not yet tested** (step 8):
+  - Physical devices on both platforms.
+  - iOS offline: cached launch, first launch, mid-session, slow network (Network Link Conditioner or blocked hosts).
+  - The slow-network timeout fix on a real bad connection.
+  - iOS with Apple Maps deleted.
+  - Whether a style retry can still mix up pin icons on iOS.
+- **Optional / deferred:**
+  - Baseline profile (step 4).
+  - iOS unhandled-exception hook for the throw site and message (step 5).
+  - H2/H3: measure the GeoJSON build and place search on a low-end Android device.
+  - L2: lower MapLibre's log threshold in release builds.
+  - A bigger cluster radius for the crowded centre (CLAUDE.md open ideas).
+
 ## Out of scope / already tracked
 - More reliable nightly mailbox fetch (second Overpass server, reusing the last mailboxes): done (server rotation, reuse of the last elements). It mattered to the app only through E3.
 - OpenFreeMap has no SLA. A self-hosted or paid tile fallback is worth considering only if outages show up in practice (L1 logging will show style failures).
