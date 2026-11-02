@@ -7,9 +7,11 @@ import platform.Foundation.NSLog
 private fun log(msg: String) = NSLog(msg.replace("%", "%%"))
 
 @OptIn(ExperimentalNativeApi::class)
+internal actual val isDebugBuild: Boolean get() = Platform.isDebugBinary
+
 internal actual object Log {
     actual fun d(tag: String, msg: String) {
-        if (Platform.isDebugBinary) log("$tag: $msg")
+        if (isDebugBuild) log("$tag: $msg")
     }
 
     actual fun w(tag: String, msg: String, t: Throwable?) {
