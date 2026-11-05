@@ -61,7 +61,7 @@ import org.maplibre.compose.overlay.LocalViewportInsets
 import org.maplibre.compose.overlay.MapOverlay
 import org.maplibre.compose.overlay.MaplibreLogo
 
-// MapOverlay.Default, but with the scale bar at the bottom left, above the MapLibre logo.
+// MapOverlay.Default, but with the scale bar at the top left, clear of the bottom picker.
 @Composable
 internal fun MapControls(mapState: MapState, onLogoHeight: (Dp) -> Unit) {
     val density = LocalDensity.current
@@ -74,12 +74,13 @@ internal fun MapControls(mapState: MapState, onLogoHeight: (Dp) -> Unit) {
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(MapOverlay.Spacing),
     ) {
-        Column(Modifier.align(Alignment.BottomStart), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            DisappearingScaleBar(
-                metersPerDp = { mapState.viewport?.metersPerDpAtCenter ?: 0.0 },
-                zoom = { mapState.cameraPosition.zoom },
-            )
-            Box(Modifier.onSizeChanged { onLogoHeight(with(density) { it.height.toDp() }) }) { MaplibreLogo() }
+        DisappearingScaleBar(
+            metersPerDp = { mapState.viewport?.metersPerDpAtCenter ?: 0.0 },
+            zoom = { mapState.cameraPosition.zoom },
+            modifier = Modifier.align(Alignment.TopStart),
+        )
+        Box(Modifier.align(Alignment.BottomStart).onSizeChanged { onLogoHeight(with(density) { it.height.toDp() }) }) {
+            MaplibreLogo()
         }
         DisappearingCompassButton(Modifier.align(Alignment.TopEnd))
     }
