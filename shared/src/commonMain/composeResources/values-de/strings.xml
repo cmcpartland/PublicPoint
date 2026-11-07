@@ -92,4 +92,5 @@
     <string name="whats_accepted">Was wird angenommen?</string>
     <string name="day_ph">Feiertag</string>
     <string name="day_off">keine Leerung</string>
+    <string name="map_loading">Lade Karte …</string>
 </resources>

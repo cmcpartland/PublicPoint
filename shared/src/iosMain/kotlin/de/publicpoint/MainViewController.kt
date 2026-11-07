@@ -1,5 +1,7 @@
 package de.publicpoint
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeUIViewController
 
-fun MainViewController() = ComposeUIViewController { App() }
+@OptIn(ExperimentalComposeUiApi::class)
+fun MainViewController() = ComposeUIViewController(configure = { opaque = false }) { App() }

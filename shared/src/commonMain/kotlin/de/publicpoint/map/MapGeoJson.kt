@@ -13,6 +13,8 @@ internal val Poi.possiblyDefect: Boolean get() = toilet?.status == ToiletStatus.
 internal fun Place?.toGeoJson() = """{"type":"FeatureCollection","features":[""" +
     (this?.let { """{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[${it.lon},${it.lat}]}}""" } ?: "") + "]}"
 
+internal const val EmptyGeoJson = """{"type":"FeatureCollection","features":[]}"""
+
 internal fun List<Poi>.toGeoJson(closed: Set<String> = emptySet()): String = buildString {
     append("""{"type":"FeatureCollection","features":[""")
     this@toGeoJson.forEachIndexed { i, p ->
