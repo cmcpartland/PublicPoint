@@ -92,4 +92,5 @@
     <string name="whats_accepted">What's accepted</string>
     <string name="day_ph">Public holiday</string>
     <string name="day_off">no collection</string>
+    <string name="map_loading">Loading map …</string>
 </resources>

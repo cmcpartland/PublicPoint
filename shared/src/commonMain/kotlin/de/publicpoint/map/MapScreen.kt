@@ -61,6 +61,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.debounce
@@ -68,6 +69,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.json.jsonPrimitive
@@ -91,6 +93,7 @@ import org.maplibre.compose.layers.SymbolLayer
 import org.maplibre.compose.location.LocationPermission
 import org.maplibre.compose.location.LocationTrackingStatus
 import org.maplibre.compose.location.rememberLocationState
+import org.maplibre.compose.map.MapEvent
 import org.maplibre.compose.map.MapState
 import org.maplibre.compose.map.MaplibreMap
 import org.maplibre.compose.map.StyleLoadState
@@ -153,7 +156,11 @@ internal fun MapScreen(
             PoiType.PUBLIC_BOOKCASE -> closedIds
             else -> null
         }
-        remember(pois, key) { pois.filter { it.type == t && f.matches(it, currentNow) }.toGeoJson(closedIds) }
+        val closed = closedIds
+        val at = currentNow
+        produceState(EmptyGeoJson, pois, key) {
+            value = withContext(Dispatchers.Default) { pois.filter { it.type == t && f.matches(it, at) }.toGeoJson(closed) }
+        }.value
     }
     val selectedClosed = selected?.id in closedIds
     val selectedGeoJson = remember(selected, selectedClosed) { listOfNotNull(selected).toGeoJson(closedIds) }
@@ -398,6 +405,8 @@ internal fun MapScreen(
     }
 
     Box(Modifier.fillMaxSize()) {
+        val loadState = mapState.style.loadState
+        var styleSlow by remember { mutableStateOf(false) }
         MaplibreMap(
             state = mapState,
             modifier = Modifier.fillMaxSize().onGloballyPositioned { mapBounds = Rect(it.positionOnScreen(), it.size.toSize()) },
@@ -417,9 +426,19 @@ internal fun MapScreen(
                 } } }
             },
         )
+        var mapDrawn by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) {
+            mapState.events.filter { it == MapEvent.Idle && mapState.style.loadState == StyleLoadState.Ready }.first()
+            mapDrawn = true
+        }
+        LaunchedEffect(loadState) {
+            if (loadState == StyleLoadState.Ready) {
+                delay(4.seconds)
+                mapDrawn = true
+            }
+        }
+        MapLoading(dark, visible = !mapDrawn && loadState !is StyleLoadState.Failed && !styleSlow)
         if (showFilters && type != null) FilterSheet(type, filters, onChange = onFiltersChange, onDismiss = { showFilters = false })
-        val loadState = mapState.style.loadState
-        var styleSlow by remember { mutableStateOf(false) }
         LaunchedEffect(loadState, styleAttempt) {
             styleSlow = false
             when (loadState) {
