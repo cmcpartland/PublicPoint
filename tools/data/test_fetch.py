@@ -86,8 +86,22 @@ with tempfile.TemporaryDirectory() as tmp:
     assert json.loads(saved.read_text()) == {"timestamp": "T0", "elements": [{"id": 9}]}
     assert warn.call_count == 1 and "T0" in warn.call_args.args[0] and "reused" in warn.call_args.args[0]
 
-    # both down: exits with an error
+    # empty answer or a remark: same fallback
+    for body, text in [({"elements": []}, "no elements"), ({"elements": [{"id": 1}], "remark": "runtime error: timed out"}, "timed out")]:
+        saved.unlink()
+        with mock.patch("build_pois.warn") as warn:
+            got = elements_for(out, [body], [response(body={"timestamp": "T0", "elements": [{"id": 9}]})])
+        assert got == [{"id": 9}], got
+        assert warn.call_count == 1 and text in warn.call_args.args[0] and "reused" in warn.call_args.args[0]
+
+    # empty answer and live download failing: exits
     saved.unlink()
+    got = elements_for(out, [{"elements": []}], [response(404)])
+    assert isinstance(got, SystemExit) and "no earlier elements" in str(got) and "no elements" in str(got), got
+    assert not saved.exists()
+
+    # both down: exits with an error
+    saved.unlink(missing_ok=True)
     got = elements_for(out, requests.ConnectionError("down"), [response(404)])
     assert isinstance(got, SystemExit) and "no earlier elements" in str(got), got
     assert not saved.exists()
