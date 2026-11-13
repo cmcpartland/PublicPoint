@@ -81,10 +81,12 @@ def fetch(urls, data=None):
 
 
 def overpass_elements(out):
-    """Fetches the OSM elements and writes them next to `out`; if Overpass stays down, reuses the last published ones."""
+    """Fetches the OSM elements and writes them next to `out`; if Overpass stays down or answers with no elements or a `remark` (its runtime error), reuses the last published ones."""
     path = out.with_name("osm-elements.json")
     try:
         resp = fetch(OVERPASS_URLS, {"data": OVERPASS_QUERY})
+        if not resp.get("elements") or resp.get("remark"):
+            raise requests.RequestException(resp.get("remark") or "no elements")
         saved = {"timestamp": resp.get("osm3s", {}).get("timestamp_osm_base"), "elements": resp["elements"]}
     except requests.RequestException as e:
         url = os.environ.get("LIVE_OSM_ELEMENTS_URL", LIVE_OSM_ELEMENTS_URL)
@@ -94,8 +96,8 @@ def overpass_elements(out):
             saved = live.json()
             saved["elements"]
         except (requests.RequestException, ValueError, KeyError, TypeError) as e2:
-            sys.exit(f"Overpass failed ({type(e).__name__}) and no earlier elements are available from {url} ({type(e2).__name__}: {e2})")
-        warn(f"Overpass failed ({type(e).__name__}), reused the last OSM elements (data from {saved.get('timestamp') or 'unknown time'})")
+            sys.exit(f"Overpass failed ({type(e).__name__}: {e}) and no earlier elements are available from {url} ({type(e2).__name__}: {e2})")
+        warn(f"Overpass failed ({type(e).__name__}: {e}), reused the last OSM elements (data from {saved.get('timestamp') or 'unknown time'})")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(saved, separators=(",", ":"), ensure_ascii=False), encoding="utf-8")
     return saved["elements"]
